@@ -26,7 +26,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
       <div className="flex gap-3 mb-6 flex-wrap">
         {[
           { cls: 'badge-arxiv', label: 'ArXiv AI' },
-          { cls: 'badge-thebatch', label: 'The Batch' },
+          { cls: 'badge-thebatch', label: 'TechCrunch AI' },
           { cls: 'badge-hackernews', label: 'Hacker News' },
         ].map((s) => (
           <span key={s.label} className={`text-xs px-2 py-1 rounded-full ${s.cls}`}>

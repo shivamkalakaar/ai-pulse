@@ -21,12 +21,12 @@ const FEEDS: Array<{
     sourceName: 'ArXiv AI',
   },
   {
-    url: 'https://read.deeplearning.ai/the-batch/rss/',
+    url: 'https://techcrunch.com/category/artificial-intelligence/feed/',
     source: 'thebatch',
-    sourceName: 'The Batch',
+    sourceName: 'TechCrunch AI',
   },
   {
-    url: 'https://hnrss.org/newest?q=AI+agent&points=25',
+    url: 'https://hnrss.org/newest?q=AI&points=10',
     source: 'hackernews',
     sourceName: 'Hacker News',
   },
