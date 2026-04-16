@@ -25,7 +25,38 @@ const RSS_FEEDS: Array<{
     source: 'thebatch',
     sourceName: 'TechCrunch AI',
   },
+  {
+    url: 'https://www.anthropic.com/feed.xml',
+    source: 'anthropic',
+    sourceName: 'Anthropic',
+  },
+  {
+    url: 'https://openai.com/news/rss.xml',
+    source: 'openai',
+    sourceName: 'OpenAI',
+  },
+  {
+    url: 'https://deepmind.google/blog/rss.xml',
+    source: 'deepmind',
+    sourceName: 'DeepMind',
+  },
 ];
+
+const TOPIC_KEYWORDS: Record<string, string[]> = {
+  'Agents':   ['agent', 'agentic', 'tool use', 'tool-use', 'autonomous', 'multi-agent', 'orchestrat'],
+  'LLMs':     ['llm', 'language model', 'gpt', 'transformer', 'fine-tun', 'pretrain', 'rlhf', 'instruction tun'],
+  'Safety':   ['safety', 'alignment', 'bias', 'fairness', 'harmful', 'risk', 'ethics', 'jailbreak', 'adversarial'],
+  'Vision':   ['vision', 'multimodal', 'image', 'video', 'diffusion', 'clip', 'vqa', 'text-to-image'],
+  'Code':     ['code', 'coding', 'programming', 'software', 'benchmark', 'evaluation', 'github'],
+  'Industry': ['openai', 'anthropic', 'google', 'deepmind', 'meta', 'microsoft', 'funding', 'product launch', 'startup'],
+};
+
+function assignTopics(title: string, snippet: string): string[] {
+  const text = `${title} ${snippet}`.toLowerCase();
+  return Object.entries(TOPIC_KEYWORDS)
+    .filter(([, kws]) => kws.some(kw => text.includes(kw)))
+    .map(([topic]) => topic);
+}
 
 function truncate(text: string | undefined, length = 200): string {
   if (!text) return '';
@@ -37,18 +68,22 @@ async function fetchRssFeeds(): Promise<NewsItem[]> {
   const results = await Promise.allSettled(
     RSS_FEEDS.map(async (feed) => {
       const parsed = await parser.parseURL(feed.url);
-      return (parsed.items || []).slice(0, 10).map((item): NewsItem => ({
-        title: item.title || 'Untitled',
-        link: item.link || '#',
-        pubDate: item.pubDate || item.isoDate || new Date().toISOString(),
-        source: feed.source,
-        sourceName: feed.sourceName,
-        snippet: truncate(
+      return (parsed.items || []).slice(0, 10).map((item): NewsItem => {
+        const snippet = truncate(
           item.contentSnippet ||
           (item as unknown as Record<string, string>).summary ||
           (item as unknown as Record<string, string>).content
-        ),
-      }));
+        );
+        return {
+          title: item.title || 'Untitled',
+          link: item.link || '#',
+          pubDate: item.pubDate || item.isoDate || new Date().toISOString(),
+          source: feed.source,
+          sourceName: feed.sourceName,
+          snippet,
+          topics: assignTopics(item.title || '', snippet),
+        };
+      });
     })
   );
 
@@ -68,14 +103,18 @@ async function fetchHackerNews(): Promise<NewsItem[]> {
   const data = await res.json();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data.hits || []).map((hit: any): NewsItem => ({
-    title: hit.title || 'Untitled',
-    link: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
-    pubDate: hit.created_at || new Date().toISOString(),
-    source: 'hackernews',
-    sourceName: 'Hacker News',
-    snippet: truncate(hit.story_text || `${hit.points} points · ${hit.num_comments} comments`),
-  }));
+  return (data.hits || []).map((hit: any): NewsItem => {
+    const snippet = truncate(hit.story_text || `${hit.points} points · ${hit.num_comments} comments`);
+    return {
+      title: hit.title || 'Untitled',
+      link: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
+      pubDate: hit.created_at || new Date().toISOString(),
+      source: 'hackernews',
+      sourceName: 'Hacker News',
+      snippet,
+      topics: assignTopics(hit.title || '', snippet),
+    };
+  });
 }
 
 export async function fetchAllNews(): Promise<NewsItem[]> {

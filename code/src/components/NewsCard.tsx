@@ -4,6 +4,9 @@ const SOURCE_BADGE: Record<NewsItem['source'], string> = {
   arxiv: 'badge-arxiv',
   thebatch: 'badge-thebatch',
   hackernews: 'badge-hackernews',
+  anthropic: 'badge-anthropic',
+  openai: 'badge-openai',
+  deepmind: 'badge-deepmind',
 };
 
 function formatDate(dateStr: string): string {
@@ -44,10 +47,38 @@ export default function NewsCard({ item }: { item: NewsItem }) {
         {item.title}
       </h3>
 
-      {/* Snippet */}
-      <p className="text-xs leading-relaxed line-clamp-4 flex-1" style={{ color: '#64748b' }}>
-        {item.snippet}
-      </p>
+      {/* Snippet or AI summary */}
+      {item.source === 'arxiv' && item.aiSummary ? (
+        <>
+          <p className="text-xs leading-relaxed line-clamp-3 flex-1" style={{ color: '#94a3b8' }}>
+            {item.aiSummary}
+          </p>
+          <span className="text-xs mt-1 block" style={{ color: '#475569' }}>✦ AI summary</span>
+        </>
+      ) : (
+        <p className="text-xs leading-relaxed line-clamp-4 flex-1" style={{ color: '#64748b' }}>
+          {item.snippet}
+        </p>
+      )}
+
+      {/* Topic chips */}
+      {item.topics.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {item.topics.slice(0, 3).map(t => (
+            <span
+              key={t}
+              className="text-xs px-1.5 py-0.5 rounded-full"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                color: '#94a3b8',
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Read more */}
       <div

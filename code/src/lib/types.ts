@@ -2,9 +2,11 @@ export interface NewsItem {
   title: string;
   link: string;
   pubDate: string;
-  source: 'arxiv' | 'thebatch' | 'hackernews';
+  source: 'arxiv' | 'thebatch' | 'hackernews' | 'anthropic' | 'openai' | 'deepmind';
   sourceName: string;
   snippet: string;
+  aiSummary?: string;
+  topics: string[];
 }
 
 export interface VideoItem {
