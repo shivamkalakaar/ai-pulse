@@ -20,7 +20,11 @@ export default function Footer() {
             AI Pulse
           </span>
           <p className="text-xs mt-1" style={{ color: '#475569' }}>
-            Aggregated from ArXiv · The Batch · Hacker News · YouTube · Updated hourly
+            Aggregated from ArXiv · TechCrunch AI · Hacker News · YouTube · Updated hourly
+          </p>
+          <p className="text-xs mt-1" style={{ color: '#334155' }}>
+            Made by{' '}
+            <span style={{ color: '#94a3b8', fontWeight: 600 }}>Shivam Kalkar</span>
           </p>
         </div>
 
